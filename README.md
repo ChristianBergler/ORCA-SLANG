@@ -90,19 +90,19 @@ ORCA-SPOT is a deep learning based alogrithm which was initially designed for ki
 
 Data preprocessing, network training, and evaluation concerning ORCA-SPOT, are illustrated in detail within the corresponding GitHub repository: https://github.com/ChristianBergler/ORCA-SPOT
 
-###ORCA-CLEAN (Denoising)
+### ORCA-CLEAN (Denoising)
 ORCA-CLEAN, is a deep denoising network designed for denoising of killer whale (Orcinus Orca) underwater recordings, not requiring any clean ground-truth samples, in order to improve the interpretation and analysis of bioacoustic signals by biologists and various machine learning algorithms.
 ORCA-CLEAN was trained exclusively on killer whale signals resulting in a significant signal enhancement. To show and prove the transferability, robustness and generalization of ORCA-CLEAN even more, a deep denoising was also conducted for bird sounds (Myiopsitta monachus) and human speech. For a detailed description about the core concepts, network architecture, preprocessing and evaluation pipeline please see our corresponding publication https://www.isca-speech.org/archive/interspeech_2020/bergler20_interspeech.html.
 
 Data preprocessing, network training, and evaluation concerning ORCA-CLEAN, are illustrated in detail within the corresponding GitHub repository: https://github.com/ChristianBergler/ORCA-CLEAN
 
-###ORCA-FEATURE (Deep Feature Learning & Semi-Supervised Call Type Identification)
+### ORCA-FEATURE (Deep Feature Learning & Semi-Supervised Call Type Identification)
 ORCA-FEATURE is a deep feature learning network, based on a ResNet18-
 based convolutional undercomplete autoencoder, initially introduced in https://www.isca-speech.org/archive/interspeech_2019/bergler19_interspeech.html, and trained on pre-segmented (ORCA-SPOT) noisy or denoised (ORCA-CLEAN) killer whale sound type spectral representations. ORCA-FEATURE enables the opportunity, to learn a compact spectral representation of a given bioacoustic spectral input sample (latent features/embeddings) in a fully unsupervised manner. Thus, a downstream categorization of known, but also unseen vocalization patterns can be accomplished, either via pure unsupervised clustering algorithms, or a hybrid combination between clustering and supervised trained classification systems.
 
 Data preprocessing, network training, and evaluation concerning ORCA-FEATURE, next to deep latent spectral feature clustering and k-NN-based orca call type assignment (semi-supervised call type identification), is documented within this GitHub repository (see below): https://github.com/ChristianBergler/ORCA-SLANG
 
-###ORCA-TYPE/ANIMAL-SPOT (Supervised Orca Call Type Classification)
+### ORCA-TYPE/ANIMAL-SPOT (Supervised Orca Call Type Classification)
 ANIMAL-SPOT is an animal-independent deep learning software framework that addresses various bioacoustic signal identifcation scenarios, such as: (1) binary target/noise detection, (2) multi-class species identification, and (3) multi-class call type recognition. ORCA-TYPE is a ResNet18-based Convolutional Neural Network (CNN), integrated and embedded as part within the ANIMAL-SPOT framework, in order to perform multi-class classification (species and/or animal-specific call types). A more detailed and deeper instruction about ORCA-TYPE with corresponding references can be found here https://www.isca-speech.org/archive/interspeech_2021/bergler21_interspeech.html. 
 
 Data preprocessing, network training, and evaluation concerning ORCA-TYPE, are illustrated in detail within the corresponding GitHub repository: https://github.com/ChristianBergler/ANIMAL-SPOT (publicly available soon)
