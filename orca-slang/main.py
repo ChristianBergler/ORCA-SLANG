@@ -207,17 +207,24 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--output_activation",
+    type=str,
+    default="sigmoid",
+    help="Final output activation function (decoder path, last residual layer) - Options: `'sigmoid (default)'`, '`relu`', '`tanh`', '`none`'",
+)
+
+parser.add_argument(
     "--dropout_prob_encoder",
     type=float,
     default=0.2,
-    help="Decay factor to apply to the learning rate.",
+    help="Decay factor to apply to the learning rate. In case it is 0 dropout functionality is deactivated.",
 )
 
 parser.add_argument(
     "--dropout_prob_decoder",
     type=float,
     default=0.2,
-    help="Decay factor to apply to the learning rate.",
+    help="Decay factor to apply to the learning rate. In case it is 0 dropout functionality is deactivated.",
 )
 
 parser.add_argument(
@@ -296,6 +303,7 @@ parser.add_argument(
     help=""
          "Minimal frequency.",
 )
+
 parser.add_argument(
     "--fmax",
     type=int,
@@ -317,35 +325,47 @@ parser.add_argument(
     default=7,
     help="Initial convolution kernel size.",
 )
+
 parser.add_argument(
     "--max_pool",
     type=int,
     default=2,
     help="Max pooling after the initial convolution layer. 0: No max pooling, stride 2, 1: Max pooling, 2: No Max pooling, stride 1",
 )
+
 parser.add_argument(
     "--latent_kernel_size",
     type=int,
     default=5,
     help="convolution kernel size in Latent layer.",
 )
+
 parser.add_argument(
     "--latent_kernel_stride",
     type=int,
     default=1,
     help="convolution kernel stride in Latent layer.",
 )
+
 parser.add_argument(
     "--latent_size",
     type=int,
     default=512,
     help="size of the latent/bottleneck layer.",
 )
+
 parser.add_argument(
     "--latent_channels",
     type=int,
     default=512,
     help="How many channels in the latent layer",
+)
+
+parser.add_argument(
+    "--latent_conv_only",
+    dest="latent_conv_only",
+    action="store_true",
+    help="Compression and decompression of the feature maps from the last residual layer via 1x1 conv/transposed convolutions only",
 )
 
 parser.add_argument(
@@ -486,6 +506,8 @@ if __name__ == "__main__":
     perc_of_max_signal = ARGS.perc_of_max_signal
     min_thres_detect = ARGS.min_thres_detect
     max_thres_detect = ARGS.max_thres_detect
+    latent_conv_only = ARGS.latent_conv_only
+    output_activation = ARGS.output_activation
 
     log.info(f"Logging Level: {debug}")
     log.info(f"Data Directory with the Input Audio: {data_dir}")
@@ -530,9 +552,11 @@ if __name__ == "__main__":
     log.info(f"Size of Latent Feature Vector: {latent_size}")
     log.info(f"Channels of within the Latent Layer: {latent_channels}")
     log.info(f"Min-Max Normalization: {min_max_norm}")
+    log.info(f"Latent layer only 1x1 conv/transposed conv: {latent_conv_only}")
     log.info(f"The Percentage Multiplied with the Maximum Signal Strength Resulting in the Target Height for the Maximum Intensity Peak Picking Orca Detection Algorithm: {perc_of_max_signal}")
     log.info(f"Minimum/Lower value (percentage) for the embedded peak finding algorithm to calculate intensity between min_freq_bin and max_freq_bin (n_fft/2+1 * min_thres_detect = min_freq_bin). For the Orca Detection: {min_thres_detect}")
     log.info(f"Maximum/Upper value (percentage) for the embedded peak finding algorithm to calculate intensity between min_freq_bin and max_freq_bin (n_fft/2+1 * max_thres_detect = max_freq_bin). For the Orca Detection: {max_thres_detect}")
+    log.info(f"Final Output Activation Function: {output_activation}")
 
     train_modes = ["autoencoder", "autoencoder_denoised", "denoiser"]
 
@@ -611,7 +635,14 @@ if __name__ == "__main__":
 
     input_shape = (batch_size, 1, dataOpts["n_freq_bins"], sequence_len)
 
-    log.info("Using Dropout")
+    if dropout_prob_encoder > 0 and dropout_prob_decoder > 0:
+        log.info("Using Dropout!")
+    elif dropout_prob_encoder <= 0 and dropout_prob_decoder <= 0:
+        log.info("No Dropout is used!")
+    else:
+        log.error("Dropout settings are not consistent - check your command line parameters!")
+        log.close()
+        raise Exception("Dropout settings are not consistent - check your command line parameters!")
 
     log.info("Setting up model")
 

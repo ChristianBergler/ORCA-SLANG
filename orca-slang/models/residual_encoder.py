@@ -62,16 +62,20 @@ class ResidualEncoder(ResidualBase):
             stride1 = (1, 1)
 
         self.layer1 = self.make_layer(self.block_type, 64, self.block_sizes[0], stride1)
-        self.l1_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
+        if opts["dropout_prob_encoder"] > 0.0:
+            self.l1_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
 
         self.layer2 = self.make_layer(self.block_type, 128, self.block_sizes[1], (2, 2))
-        self.l2_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
+        if opts["dropout_prob_encoder"] > 0.0:
+            self.l2_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
 
         self.layer3 = self.make_layer(self.block_type, 256, self.block_sizes[2], (2, 2))
-        self.l3_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
+        if opts["dropout_prob_encoder"] > 0.0:
+            self.l3_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
 
         self.layer4 = self.make_layer(self.block_type, 512, self.block_sizes[3], (2, 2))
-        self.l4_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
+        if opts["dropout_prob_encoder"] > 0.0:
+            self.l4_dropout = nn.Dropout(p=opts["dropout_prob_encoder"])
 
     def forward(self, x):
         self._layer_output["input_layer"] = x

@@ -17,13 +17,20 @@ DefaultLatentOpts = {
     "adaptive_pooling": (8, 16),
     "latent_kernel_size": 1,
     "latent_kernel_stride": 1,
-    "latent_size": 512
+    "latent_size": 512,
+    "latent_conv_only": False
 }
 
 class Latent(nn.Module):
     def __init__(self, opts: dict = DefaultLatentOpts):
         super().__init__()
         self._opts = opts
+
+        if opts["latent_conv_only"]:
+            opts["latent_channels"] = 4
+            opts["latent_kernel_size"] = 1
+            opts["latent_kernel_stride"] = 1
+
         self.conv1 = nn.Conv2d(
             opts["in_channels"],
             opts["latent_channels"],
@@ -35,7 +42,8 @@ class Latent(nn.Module):
         self.bn1 = nn.BatchNorm2d(opts["latent_channels"])
         self.relu1 = nn.ReLU(inplace=True)
 
-        self.max_pool = nn.MaxPool2d((8, 16), return_indices=True)
+        if not opts["latent_conv_only"]:
+            self.max_pool = nn.MaxPool2d((8, 16), return_indices=True)
 
         #dense layer according to latent size
         if opts.get("latent_size") is not None and opts["latent_size"] != 512:
@@ -45,7 +53,8 @@ class Latent(nn.Module):
             self.dense_cmpr = None
             self.dense_decmpr = None
 
-        self.max_unpool = nn.MaxUnpool2d((8, 16))
+        if not opts["latent_conv_only"]:
+            self.max_unpool = nn.MaxUnpool2d((8, 16))
 
         self.conv2 = nn.ConvTranspose2d(
             opts["latent_channels"],
@@ -66,7 +75,8 @@ class Latent(nn.Module):
         x = self.bn1(x)
         z = self.relu1(x)
 
-        z, indices = self.max_pool(z)
+        if not self._opts["latent_conv_only"]:
+            z, indices = self.max_pool(z)
 
         hidden_layer = z.clone()
 
@@ -77,7 +87,10 @@ class Latent(nn.Module):
             self._layer_output["code"] = hidden_layer.view(hidden_layer.size(0), -1)
             z = self.dense_decmpr(hidden_layer).unsqueeze(-1).unsqueeze(-1)
 
-        x = self.max_unpool(z, indices)
+        if not self._opts["latent_conv_only"]:
+            x = self.max_unpool(z, indices)
+        else:
+            x = z.clone()
 
         x = self.conv2(x)
         x = self.bn2(x)

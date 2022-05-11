@@ -39,22 +39,26 @@ class ResidualDecoder(ResidualBase):
         self.layer1 = self.make_layer(
             self.block_type, 256, self.block_sizes[3], (2, 2), "upsample"
         )  # 512 -> 256
-        self.l1_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
+        if opts["dropout_prob_decoder"] > 0.0:
+            self.l1_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
 
         self.layer2 = self.make_layer(
             self.block_type, 128, self.block_sizes[2], (2, 2), "upsample"
         )  # 256 -> 128
-        self.l2_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
+        if opts["dropout_prob_decoder"] > 0.0:
+            self.l2_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
 
         self.layer3 = self.make_layer(
             self.block_type, 64, self.block_sizes[1], (2, 2), "upsample"
         )  # 128 -> 64
-        self.l3_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
+        if opts["dropout_prob_decoder"] > 0.0:
+            self.l3_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
 
         self.layer4 = self.make_layer(
             self.block_type, 64, self.block_sizes[0], (2, 2), "upsample"
         )  # 64 -> 64; use stride 2 instead of max unpooling
-        self.l4_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
+        if opts["dropout_prob_decoder"] > 0.0:
+            self.l4_dropout = nn.Dropout(p=opts["dropout_prob_decoder"])
 
         self.conv_out = nn.ConvTranspose2d(
             in_channels=64 * self.block_type.expansion,
