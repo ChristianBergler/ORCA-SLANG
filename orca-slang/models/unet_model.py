@@ -38,7 +38,6 @@ class UNet(nn.Module):
         self.outc = OutConv(64, n_classes)
 
     def forward(self, x):
-
         #downsampling
         x1 = self.inc(x)
         x2 = self.down1(x1)
